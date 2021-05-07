@@ -9,10 +9,6 @@ import static spark.Spark.delete;
 
 import com.google.gson.Gson;
 
-/**
- * Hello world!
- *
- */
 public class App {
 	
 	static AccessLog accesslog = null;
@@ -23,7 +19,7 @@ public class App {
 		if (args.length > 0) {
 			port(Integer.parseInt(args[0]));
 		} else {
-			port(8080);
+			port(8000); // Endret fordi port 8080 gir problemer paa min pc
 		}
 
 		// objects for data stored in the service
@@ -44,8 +40,32 @@ public class App {
 		});
 		
 		// TODO: implement the routes required for the access control service
-		// as per the HTTP/REST operations describined in the project description
-		
+		// as per the HTTP/REST operations described in the project description
+
+		post("/accessdevice/log", (req, res) ->
+				new Gson().toJson(accesslog.get(accesslog.add(req.body()))));
+
+		get("/accessdevice/log", (req, res) -> accesslog.toJson());
+
+		get("/accessdevice/log/:id", (req, res) -> {
+			int id = Integer.parseInt(req.params("id"));
+			return new Gson().toJson(accesslog.get(id));
+		});
+
+		put("/accessdevice/code", (req, res) -> {
+			Gson gson = new Gson();
+			AccessCode code = gson.fromJson(req.body(), AccessCode.class);
+			accesscode.setAccesscode(code.getAccesscode());
+			return req.body();
+		});
+
+		get("/accessdevice/code", (req, res) ->
+				new Gson().toJson(accesscode));
+
+		delete("/accessdevice/log", (req, res) -> {
+			accesslog.clear();
+			return accesslog.toJson();
+		});
     }
     
 }
